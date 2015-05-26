@@ -27,7 +27,7 @@ public class MainActivity extends ActionBarActivity {
     File dataFolder = new File(dataDir);
     File backupFolder = new File(backupDir);
 
-    private void copyAssets(String scrDir) {
+    private void copyAssets(String scrDir,String dataDir) {
         AssetManager assetManager = getAssets();
         String[] files = null;
         try {
@@ -123,11 +123,7 @@ public class MainActivity extends ActionBarActivity {
 
     // Make backup
 
-        try {
-            copyDirectory(dataFolder,backupFolder);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
 
 
     }
@@ -159,13 +155,13 @@ public class MainActivity extends ActionBarActivity {
 
     public void onEnglishPatchClick(View view) {
 
-        copyAssets("englishpatch");
+        copyAssets("englishpatch",dataDir);
         Toast.makeText(MainActivity.this,"You have successfully applied English patch",Toast.LENGTH_LONG).show();
     }
 
     public void onRestoreKoreanClick(View view) {
 
-        copyAssets("koreanpatch");
+        copyAssets("koreanpatch",dataDir);
         Toast.makeText(MainActivity.this,"You have successfully restored Korean files",Toast.LENGTH_LONG).show();
 
     }
