@@ -97,9 +97,15 @@
             android:text="Restore Backup"
             android:onClick="onRestoreBackupClick"/>
 
-
-
-
     </LinearLayout>
+
+    <Button
+        android:layout_marginTop="10dp"
+        android:layout_width="240dp"
+        android:layout_height="55dp"
+        android:text="Check for updates"
+        android:onClick="onCheckUpdateClick"/>
+
+
 
 </LinearLayout>
