@@ -28,42 +28,64 @@ import org.apache.commons.io.FileUtils;
 public class MainActivity extends ActionBarActivity {
 
 
-    final static String dataDir = Environment.getExternalStorageDirectory() + "/Android/data/com.nexon.loh.korgooglev1/files/at2/cacheroot/gamedata/mobilebundles/";
-    final static String backupDir = Environment.getExternalStorageDirectory() + "/Android/data/com.mg.uros.klohenglishpatchv2/backup/";
-    final static String updatesDir = Environment.getExternalStorageDirectory() + "/Android/data/com.mg.uros.klohenglishpatchv2/updates/";
-    final static String koreanUpdatesDir = Environment.getExternalStorageDirectory() + "/Android/data/com.mg.uros.klohenglishpatchv2/updates/korean";
-    final static String englishUpdatesDir = Environment.getExternalStorageDirectory() + "/Android/data/com.mg.uros.klohenglishpatchv2/updates/english";
-    final static String patch = Environment.getExternalStorageDirectory() + "/Android/data/com.mg.uros.klohenglishpatchv2/updates/patch.zip";
-    final static String tempDir = Environment.getExternalStorageDirectory() + "/Android/data/com.mg.uros.klohenglishpatchv2/temp/";
-    final static String tempPatch = Environment.getExternalStorageDirectory() + "/Android/data/com.mg.uros.klohenglishpatchv2/temp/patch.zip";
+    final static String GAME_DATA_PATH = Environment.getExternalStorageDirectory() + "/Android/data/com.nexon.loh.korgooglev1/files/at2/cacheroot/gamedata/mobilebundles/";
+    final static String BACKUP_PATH = Environment.getExternalStorageDirectory() + "/Android/data/com.mg.uros.klohenglishpatchv2/backup/";
+    final static String UPDATES_PATH = Environment.getExternalStorageDirectory() + "/Android/data/com.mg.uros.klohenglishpatchv2/updates/";
+    final static String KOREAN_UPDATES_PATH = Environment.getExternalStorageDirectory() + "/Android/data/com.mg.uros.klohenglishpatchv2/updates/korean";
+    final static String ENGLISH_UPDATES_PATH = Environment.getExternalStorageDirectory() + "/Android/data/com.mg.uros.klohenglishpatchv2/updates/english";
+    final static String UPDATES_PATCH_ZIP_PATH = Environment.getExternalStorageDirectory() + "/Android/data/com.mg.uros.klohenglishpatchv2/updates/patch.zip";
+    final static String TEMP_PATH = Environment.getExternalStorageDirectory() + "/Android/data/com.mg.uros.klohenglishpatchv2/temp/";
+    final static String TEMP_PATCH_ZIP_PATH = Environment.getExternalStorageDirectory() + "/Android/data/com.mg.uros.klohenglishpatchv2/temp/patch.zip";
+    final static String PREFS_NAME = "com.mg.uros.klohenglishpatchv3";
 
 
-    File dataFolder = new File(dataDir);
-    File backupFolder = new File(backupDir);
-    File patchFile = new File(patch);
-    File updateFolder = new File(updatesDir);
-    File tempFolder = new File (tempDir);
-    File tempFile = new File(tempPatch);
-    File koreanUpdatedFolder = new File (koreanUpdatesDir);
-    File englishUpdatedFolder = new File (englishUpdatesDir);
+
+    File GAME_DATA_FOLDER = new File(GAME_DATA_PATH);
+    File BACKUP_FOLDER = new File(BACKUP_PATH);
+    File UPDATES_FOLDER = new File(UPDATES_PATH);
+    File KOREAN_UPDATES_FOLDER = new File (KOREAN_UPDATES_PATH);
+    File ENGLISH_UPDATES_FOLDER = new File (ENGLISH_UPDATES_PATH);
+    File TEMP_FOLDER = new File (TEMP_PATH);
+    File UPDATES_PATCH_ZIP_FILE = new File(UPDATES_PATCH_ZIP_PATH );
+    File TEMP_PATCH_ZIP_FILE = new File(TEMP_PATCH_ZIP_PATH);
 
 
 
     FileManager fileManager = new FileManager(MainActivity.this);
-    SharedPreferences settings = null;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-
-        String PREFS_NAME = "com.mg.uros.klohenglishpatchv2";
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+
+        if (!GAME_DATA_FOLDER.isDirectory() || !GAME_DATA_FOLDER.exists())
+        {
+            Log.v("DIR_CHECK","FOLDER NOT FOUND !");
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+            builder1.setCancelable(false);
+            builder1.setTitle("ERROR !");
+            builder1.setMessage("Files for Korean Legion Of Heroes are not detected, game is not installed or files are moved away from default location.");
+            builder1.setNeutralButton(android.R.string.ok,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                            finish();
+
+                        }
+                    });
+            AlertDialog alert11 = builder1.create();
+            alert11.show();
+        }
+        if (!UPDATES_FOLDER.isDirectory() || !BACKUP_FOLDER.isDirectory() || !TEMP_FOLDER.isDirectory())
+        {
+            FolderSetup ();
+        }
+
+
+
+
         TextView statusValue =  (TextView) findViewById(R.id.status_text_value);
 
         boolean firstRun = settings.getBoolean("firstRun", true); // Is it first run? If not specified, use "true"
@@ -71,7 +93,6 @@ public class MainActivity extends ActionBarActivity {
 
         if (firstRun) {
             Log.w("activity", "first time");
-
             SharedPreferences.Editor editor = settings.edit(); // Open the editor for our settings
             editor.putBoolean("firstRun", false); // It is no longer the first run
             editor.putString("status", "Default");
@@ -79,25 +100,12 @@ public class MainActivity extends ActionBarActivity {
 
 
 
-            try {
-                new File(updatesDir).mkdirs();
-                new File(tempDir).mkdirs();
-                new File(koreanUpdatesDir).mkdirs();
-                new File(englishUpdatesDir).mkdirs();
-                fileManager.copyAssets("koreanpatch", updatesDir);
-                fileManager.unzip(patchFile, updateFolder);
-                fileManager.copyDirectory(dataFolder, backupFolder);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(MainActivity.this, "SD card is not present or kloh is not installed", Toast.LENGTH_LONG).show();
-            }
+
 
         } else {
             String getStatus = settings.getString("status", "Default");
             Log.w("activity", "second time");
-
-
-           statusValue.setText(getStatus);
+            statusValue.setText(getStatus);
 
         }
 
@@ -131,13 +139,10 @@ public class MainActivity extends ActionBarActivity {
 
     public void onEnglishPatchClick(View view) {
         try {
-            fileManager.copyDirectory(englishUpdatedFolder,dataFolder);
+            fileManager.copyDirectory(ENGLISH_UPDATES_FOLDER,GAME_DATA_FOLDER);
             Toast.makeText(MainActivity.this,"You have successfully applied English patch",Toast.LENGTH_LONG).show();
-
-            String PREFS_NAME = "com.mg.uros.klohenglishpatchv2";
             SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
             TextView statusValue =  (TextView) findViewById(R.id.status_text_value);
-
             statusValue.setText("English");
 
             SharedPreferences.Editor editor = settings.edit();
@@ -153,9 +158,8 @@ public class MainActivity extends ActionBarActivity {
     public void onRestoreKoreanClick(View view) {
 
         try {
-            fileManager.copyDirectory(koreanUpdatedFolder,dataFolder);
+            fileManager.copyDirectory(KOREAN_UPDATES_FOLDER,GAME_DATA_FOLDER);
             Toast.makeText(MainActivity.this,"You have successfully restored Korean files",Toast.LENGTH_LONG).show();
-            String PREFS_NAME = "com.mg.uros.klohenglishpatchv2";
             SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
             TextView statusValue =  (TextView) findViewById(R.id.status_text_value);
             statusValue.setText("Korean");
@@ -175,9 +179,8 @@ public class MainActivity extends ActionBarActivity {
 
     public void onRestoreBackupClick(View view) {
         try {
-            fileManager.copyDirectory(backupFolder, dataFolder);
+            fileManager.copyDirectory(BACKUP_FOLDER, GAME_DATA_FOLDER);
             Toast.makeText(MainActivity.this,"You have successfully restored backup of your files",Toast.LENGTH_LONG).show();
-            String PREFS_NAME = "com.mg.uros.klohenglishpatchv2";
             SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
             TextView statusValue =  (TextView) findViewById(R.id.status_text_value);
 
@@ -195,7 +198,7 @@ public class MainActivity extends ActionBarActivity {
     public void onBackupFilesClick(View view) {
 
         try {
-            fileManager.copyDirectory(dataFolder, backupFolder);
+            fileManager.copyDirectory(GAME_DATA_FOLDER, BACKUP_FOLDER);
             Toast.makeText(MainActivity.this,"You have successfully made backup of your files",Toast.LENGTH_LONG).show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -231,15 +234,17 @@ public class MainActivity extends ActionBarActivity {
                         {
                             try {
 
-                                boolean deleted = patchFile.delete();
-                                fileManager.copyDirectory(tempFolder,updateFolder);
-                                deleted = tempFile.delete();
-                                fileManager.DeleteRecursive(koreanUpdatedFolder);
-                                fileManager.DeleteRecursive(englishUpdatedFolder);
-                                new File(koreanUpdatesDir).mkdirs();
-                                new File(englishUpdatesDir).mkdirs();
-                                fileManager.unzip(patchFile,updateFolder);
-                                Toast.makeText(MainActivity.this, "You have successfully updated translation files, use patch option again", Toast.LENGTH_LONG).show();
+                                boolean deleted = UPDATES_PATCH_ZIP_FILE.delete();
+                                fileManager.copyDirectory(TEMP_FOLDER,UPDATES_FOLDER);
+                                deleted = TEMP_PATCH_ZIP_FILE.delete();
+                                fileManager.DeleteRecursive(KOREAN_UPDATES_FOLDER);
+                                fileManager.DeleteRecursive(ENGLISH_UPDATES_FOLDER);
+                                new File(KOREAN_UPDATES_PATH).mkdirs();
+                                new File(ENGLISH_UPDATES_PATH).mkdirs();
+                                fileManager.unzip(UPDATES_PATCH_ZIP_FILE, UPDATES_FOLDER);
+
+                                fileManager.copyDirectory(ENGLISH_UPDATES_FOLDER,GAME_DATA_FOLDER);
+                                Toast.makeText(MainActivity.this, "You have successfully updated translation files, English patch has been applied to game files", Toast.LENGTH_LONG).show();
 
                             } catch (IOException e) {
                                 e.printStackTrace();
@@ -253,6 +258,22 @@ public class MainActivity extends ActionBarActivity {
         AlertDialog alert11 = builder1.create();
         alert11.show();
 
+    }
+
+    private void FolderSetup ()
+    {
+        try {
+            new File(UPDATES_PATH).mkdirs();
+            new File(TEMP_PATH).mkdirs();
+            new File(KOREAN_UPDATES_PATH).mkdirs();
+            new File(ENGLISH_UPDATES_PATH).mkdirs();
+            fileManager.copyAssets("koreanpatch", UPDATES_PATH);
+            fileManager.unzip(UPDATES_PATCH_ZIP_FILE, UPDATES_FOLDER);
+            fileManager.copyDirectory(GAME_DATA_FOLDER, BACKUP_FOLDER);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(MainActivity.this, "Something is wrong with device storage", Toast.LENGTH_LONG).show();
+        }
     }
 
     public void onCheckUpdateClick(View view) {
@@ -286,7 +307,7 @@ public class MainActivity extends ActionBarActivity {
 
                     }
                 })
-                .write(new File(tempPatch))
+                .write(new File(TEMP_PATCH_ZIP_PATH))
                 .setCallback(new FutureCallback<File>() {
                     @Override
                     public void onCompleted(Exception e, File file) {
@@ -295,7 +316,7 @@ public class MainActivity extends ActionBarActivity {
                         progressDialog.cancel();
 
                         try {
-                            boolean compare1and2 = FileUtils.contentEquals(patchFile, file);
+                            boolean compare1and2 = FileUtils.contentEquals(UPDATES_PATCH_ZIP_FILE, file);
                             Log.v("compare", String.valueOf(compare1and2));
 
                             alertDialog(compare1and2);
