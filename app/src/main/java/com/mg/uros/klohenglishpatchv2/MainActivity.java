@@ -39,16 +39,14 @@ public class MainActivity extends ActionBarActivity {
     final static String PREFS_NAME = "com.mg.uros.klohenglishpatchv3";
 
 
-
     File GAME_DATA_FOLDER = new File(GAME_DATA_PATH);
     File BACKUP_FOLDER = new File(BACKUP_PATH);
     File UPDATES_FOLDER = new File(UPDATES_PATH);
-    File KOREAN_UPDATES_FOLDER = new File (KOREAN_UPDATES_PATH);
-    File ENGLISH_UPDATES_FOLDER = new File (ENGLISH_UPDATES_PATH);
-    File TEMP_FOLDER = new File (TEMP_PATH);
-    File UPDATES_PATCH_ZIP_FILE = new File(UPDATES_PATCH_ZIP_PATH );
+    File KOREAN_UPDATES_FOLDER = new File(KOREAN_UPDATES_PATH);
+    File ENGLISH_UPDATES_FOLDER = new File(ENGLISH_UPDATES_PATH);
+    File TEMP_FOLDER = new File(TEMP_PATH);
+    File UPDATES_PATCH_ZIP_FILE = new File(UPDATES_PATCH_ZIP_PATH);
     File TEMP_PATCH_ZIP_FILE = new File(TEMP_PATCH_ZIP_PATH);
-
 
 
     FileManager fileManager = new FileManager(MainActivity.this);
@@ -60,9 +58,8 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 
-        if (!GAME_DATA_FOLDER.isDirectory() || !GAME_DATA_FOLDER.exists())
-        {
-            Log.v("DIR_CHECK","FOLDER NOT FOUND !");
+        if (!GAME_DATA_FOLDER.isDirectory() || !GAME_DATA_FOLDER.exists()) {
+            Log.v("DIR_CHECK", "FOLDER NOT FOUND !");
             AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
             builder1.setCancelable(false);
             builder1.setTitle("ERROR !");
@@ -78,15 +75,12 @@ public class MainActivity extends ActionBarActivity {
             AlertDialog alert11 = builder1.create();
             alert11.show();
         }
-        if (!UPDATES_FOLDER.isDirectory() || !BACKUP_FOLDER.isDirectory() || !TEMP_FOLDER.isDirectory())
-        {
-            FolderSetup ();
+        if (!UPDATES_FOLDER.isDirectory() || !BACKUP_FOLDER.isDirectory() || !TEMP_FOLDER.isDirectory()) {
+            FolderSetup();
         }
 
 
-
-
-        TextView statusValue =  (TextView) findViewById(R.id.status_text_value);
+        TextView statusValue = (TextView) findViewById(R.id.status_text_value);
 
         boolean firstRun = settings.getBoolean("firstRun", true); // Is it first run? If not specified, use "true"
 
@@ -99,15 +93,19 @@ public class MainActivity extends ActionBarActivity {
             editor.commit(); // Save all changed settings
 
 
-
-
-
         } else {
             String getStatus = settings.getString("status", "Default");
             Log.w("activity", "second time");
             statusValue.setText(getStatus);
 
         }
+
+
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
 
 
     }
@@ -128,7 +126,7 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
 
-      if (id == R.id.exit_menu_item) {
+        if (id == R.id.exit_menu_item) {
 
             finish();
             return true;
@@ -139,10 +137,10 @@ public class MainActivity extends ActionBarActivity {
 
     public void onEnglishPatchClick(View view) {
         try {
-            fileManager.copyDirectory(ENGLISH_UPDATES_FOLDER,GAME_DATA_FOLDER);
-            Toast.makeText(MainActivity.this,"You have successfully applied English patch",Toast.LENGTH_LONG).show();
+            fileManager.copyDirectory(ENGLISH_UPDATES_FOLDER, GAME_DATA_FOLDER);
+            Toast.makeText(MainActivity.this, "You have successfully applied English patch", Toast.LENGTH_LONG).show();
             SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-            TextView statusValue =  (TextView) findViewById(R.id.status_text_value);
+            TextView statusValue = (TextView) findViewById(R.id.status_text_value);
             statusValue.setText("English");
 
             SharedPreferences.Editor editor = settings.edit();
@@ -158,10 +156,10 @@ public class MainActivity extends ActionBarActivity {
     public void onRestoreKoreanClick(View view) {
 
         try {
-            fileManager.copyDirectory(KOREAN_UPDATES_FOLDER,GAME_DATA_FOLDER);
-            Toast.makeText(MainActivity.this,"You have successfully restored Korean files",Toast.LENGTH_LONG).show();
+            fileManager.copyDirectory(KOREAN_UPDATES_FOLDER, GAME_DATA_FOLDER);
+            Toast.makeText(MainActivity.this, "You have successfully restored Korean files", Toast.LENGTH_LONG).show();
             SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-            TextView statusValue =  (TextView) findViewById(R.id.status_text_value);
+            TextView statusValue = (TextView) findViewById(R.id.status_text_value);
             statusValue.setText("Korean");
 
             SharedPreferences.Editor editor = settings.edit();
@@ -173,16 +171,14 @@ public class MainActivity extends ActionBarActivity {
         }
 
 
-
-
     }
 
     public void onRestoreBackupClick(View view) {
         try {
             fileManager.copyDirectory(BACKUP_FOLDER, GAME_DATA_FOLDER);
-            Toast.makeText(MainActivity.this,"You have successfully restored backup of your files",Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "You have successfully restored backup of your files", Toast.LENGTH_LONG).show();
             SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-            TextView statusValue =  (TextView) findViewById(R.id.status_text_value);
+            TextView statusValue = (TextView) findViewById(R.id.status_text_value);
 
             statusValue.setText("Backup");
             SharedPreferences.Editor editor = settings.edit();
@@ -199,10 +195,34 @@ public class MainActivity extends ActionBarActivity {
 
         try {
             fileManager.copyDirectory(GAME_DATA_FOLDER, BACKUP_FOLDER);
-            Toast.makeText(MainActivity.this,"You have successfully made backup of your files",Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "You have successfully made backup of your files", Toast.LENGTH_LONG).show();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+    }
+
+    public void onCleanInstallClick(View view) {
+
+       try {
+            for(File f: GAME_DATA_FOLDER.listFiles())
+                if(f.getName().startsWith("text_"))
+                    f.delete();
+
+            fileManager.copyDirectory(ENGLISH_UPDATES_FOLDER, GAME_DATA_FOLDER);
+            Toast.makeText(MainActivity.this, "You have successfully deleted all current game text files and applied English patch", Toast.LENGTH_LONG).show();
+            SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+            TextView statusValue = (TextView) findViewById(R.id.status_text_value);
+            statusValue.setText("English");
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString("status", "English");
+            editor.commit();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(MainActivity.this, "You have failed to apply English patch", Toast.LENGTH_LONG).show();
+        }
+
 
     }
 

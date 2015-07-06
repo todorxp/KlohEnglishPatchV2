@@ -1,13 +1,24 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<FrameLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#000000">
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/dok"
+       />
+
+
+<LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:scrollbarAlwaysDrawVerticalTrack="true"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity"
-    android:orientation="vertical"
-    android:background="#000000">
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -15,8 +26,9 @@
         android:orientation="horizontal"
         android:layout_marginTop="10dp"
         android:layout_gravity="left">
-    <TextView
 
+    <TextView
+        android:background="#33000000"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Status : "
@@ -24,6 +36,7 @@
         android:textColor="#ffffff"/>
 
         <TextView
+            android:background="#33000000"
             android:id="@+id/status_text_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -31,13 +44,14 @@
             android:textSize="18sp"
             android:textColor="#ffffff"/>
 
+
     </LinearLayout>
 
 
-
-
-
-    <TextView android:text="@string/hello_world"
+    <TextView
+        android:background="#33000000"
+        android:text="@string/hello_world"
+        android:textStyle="bold"
         android:textSize="14sp"
         android:layout_marginTop="10dp"
         android:layout_width="wrap_content"
@@ -52,6 +66,7 @@
         android:layout_gravity="left">
 
         <Button
+
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:text="English Patch"
@@ -69,7 +84,10 @@
 
     </LinearLayout>
 
+
     <TextView
+        android:background="#33000000"
+        android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="You can also backup your current korean Legion Of Heroes language files"
@@ -85,6 +103,7 @@
         android:layout_gravity="left">
 
         <Button
+
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:text="Backup Files"
@@ -98,14 +117,29 @@
             android:onClick="onRestoreBackupClick"/>
 
     </LinearLayout>
+    <TextView android:text="With clean and install option you can DELETE all current KLOH text files and apply fresh English files"
+        android:background="#4D000000"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#ff0000"/>
 
     <Button
+        android:layout_marginTop="10dp"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="Clean and install"
+        android:onClick="onCleanInstallClick"/>
+
+    <Button
+        android:background="#ffdbffc8"
+
         android:layout_marginTop="10dp"
         android:layout_width="240dp"
         android:layout_height="55dp"
         android:text="Check for updates"
         android:onClick="onCheckUpdateClick"/>
-
-
-
 </LinearLayout>
+</FrameLayout>
