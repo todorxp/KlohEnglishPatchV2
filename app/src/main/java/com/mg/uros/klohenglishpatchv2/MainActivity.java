@@ -38,7 +38,6 @@ public class MainActivity extends ActionBarActivity {
     final static String TEMP_PATCH_ZIP_PATH = Environment.getExternalStorageDirectory() + "/Android/data/com.mg.uros.klohenglishpatchv2/temp/patch.zip";
     final static String PREFS_NAME = "com.mg.uros.klohenglishpatchv3";
 
-
     File GAME_DATA_FOLDER = new File(GAME_DATA_PATH);
     File BACKUP_FOLDER = new File(BACKUP_PATH);
     File UPDATES_FOLDER = new File(UPDATES_PATH);
@@ -49,40 +48,42 @@ public class MainActivity extends ActionBarActivity {
     File TEMP_PATCH_ZIP_FILE = new File(TEMP_PATCH_ZIP_PATH);
 
 
+    private SharedPreferences settings = null;
+    private TextView statusValue = null;
+    private boolean isInternetPresent ;
+
+
+
+
     FileManager fileManager = new FileManager(MainActivity.this);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        settings = getSharedPreferences(PREFS_NAME, 0);
+        statusValue = (TextView) findViewById(R.id.status_text_value);
 
         if (!GAME_DATA_FOLDER.isDirectory() || !GAME_DATA_FOLDER.exists()) {
             Log.v("DIR_CHECK", "FOLDER NOT FOUND !");
-            AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
-            builder1.setCancelable(false);
-            builder1.setTitle("ERROR !");
-            builder1.setMessage("Files for Korean Legion Of Heroes are not detected, game is not installed or files are moved away from default location.");
-            builder1.setNeutralButton(android.R.string.ok,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                            finish();
 
-                        }
-                    });
-            AlertDialog alert11 = builder1.create();
-            alert11.show();
+            String msg =  "Files for Korean Legion Of Heroes are not detected, game is not installed or files are moved away from default location.";
+            CustomDialog(true, msg, "ERROR !");
+
         }
         if (!UPDATES_FOLDER.isDirectory() || !BACKUP_FOLDER.isDirectory() || !TEMP_FOLDER.isDirectory()) {
             FolderSetup();
         }
 
 
-        TextView statusValue = (TextView) findViewById(R.id.status_text_value);
+
 
         boolean firstRun = settings.getBoolean("firstRun", true); // Is it first run? If not specified, use "true"
+
+        ConnectionDetector cd = new ConnectionDetector(getApplicationContext());
+        isInternetPresent = cd.isConnectingToInternet();
 
 
         if (firstRun) {
@@ -103,11 +104,35 @@ public class MainActivity extends ActionBarActivity {
 
     }
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public void onBackPressed() {
 
+        joinGuildDialog();
 
+    }
 
+    private void SetStatus(String status){
+
+        statusValue.setText(status);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("status", status);
+        editor.commit();
+
+    }
+
+    private void joinGuildDialog()
+    {
+        String msg = "Thanks for using KLOH English patch.\nThis apk has been made by Dirdra , translation files are by Rellim.\nWe are both from ROOM1 guild , 티아미스뭘트 server (1st on list). If you want to be in friendly and active guild, you are welcome to join us.\nMake application in game if so.";
+        CustomDialog(true, msg, "EXIT");
+    }
+
+    private void CustomDialog(boolean killapp,String message, String title)
+    {
+        CustomDialog cd = new CustomDialog(MainActivity.this);
+        cd.show();
+        cd.setTitle(title);
+        cd.setMessage(message);
+        cd.setCancelable(false);
+        if (killapp) cd.killapp = true;
     }
 
     @Override
@@ -128,7 +153,7 @@ public class MainActivity extends ActionBarActivity {
 
         if (id == R.id.exit_menu_item) {
 
-            finish();
+            joinGuildDialog();
             return true;
         }
 
@@ -139,13 +164,8 @@ public class MainActivity extends ActionBarActivity {
         try {
             fileManager.copyDirectory(ENGLISH_UPDATES_FOLDER, GAME_DATA_FOLDER);
             Toast.makeText(MainActivity.this, "You have successfully applied English patch", Toast.LENGTH_LONG).show();
-            SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-            TextView statusValue = (TextView) findViewById(R.id.status_text_value);
-            statusValue.setText("English");
+            SetStatus("English");
 
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putString("status", "English");
-            editor.commit();
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(MainActivity.this, "You have failed to apply English patch", Toast.LENGTH_LONG).show();
@@ -158,13 +178,7 @@ public class MainActivity extends ActionBarActivity {
         try {
             fileManager.copyDirectory(KOREAN_UPDATES_FOLDER, GAME_DATA_FOLDER);
             Toast.makeText(MainActivity.this, "You have successfully restored Korean files", Toast.LENGTH_LONG).show();
-            SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-            TextView statusValue = (TextView) findViewById(R.id.status_text_value);
-            statusValue.setText("Korean");
-
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putString("status", "Korean");
-            editor.commit();
+            SetStatus("Korean");
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(MainActivity.this, "You have failed to restore korean files", Toast.LENGTH_LONG).show();
@@ -177,13 +191,7 @@ public class MainActivity extends ActionBarActivity {
         try {
             fileManager.copyDirectory(BACKUP_FOLDER, GAME_DATA_FOLDER);
             Toast.makeText(MainActivity.this, "You have successfully restored backup of your files", Toast.LENGTH_LONG).show();
-            SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-            TextView statusValue = (TextView) findViewById(R.id.status_text_value);
-
-            statusValue.setText("Backup");
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putString("status", "Backup");
-            editor.commit();
+            SetStatus("Backup");
 
         } catch (IOException e) {
             Toast.makeText(MainActivity.this, "You have failed to restore backup files", Toast.LENGTH_LONG).show();
@@ -211,12 +219,7 @@ public class MainActivity extends ActionBarActivity {
 
             fileManager.copyDirectory(ENGLISH_UPDATES_FOLDER, GAME_DATA_FOLDER);
             Toast.makeText(MainActivity.this, "You have successfully deleted all current game text files and applied English patch", Toast.LENGTH_LONG).show();
-            SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-            TextView statusValue = (TextView) findViewById(R.id.status_text_value);
-            statusValue.setText("English");
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putString("status", "English");
-            editor.commit();
+            SetStatus("English");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -227,58 +230,44 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
-    public void alertDialog(final Boolean result)
-    {
-        AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+    public void UpdatesDialog(final Boolean result) {
 
-        if (result)
-        {
-            builder1.setTitle("Updates not found !");
-            builder1.setMessage("You have the latest version of translation files");
+        if (result) {
+
+            CustomDialog(false, "You have the latest version of translation files", "Updates not found !");
+
+        } else {
+            CustomDialog(false, "Click OK to get new updated translation files", "New update found !");
+            ApplyUpdate();
+
         }
-        else
-        {
-            builder1.setTitle("New update found !");
-            builder1.setMessage("Click OK to get new updated translation files");
-        }
-
-
-        builder1.setCancelable(true);
-
-        builder1.setNeutralButton(android.R.string.ok,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-
-                        if (!result)
-                        {
-                            try {
-
-                                boolean deleted = UPDATES_PATCH_ZIP_FILE.delete();
-                                fileManager.copyDirectory(TEMP_FOLDER,UPDATES_FOLDER);
-                                deleted = TEMP_PATCH_ZIP_FILE.delete();
-                                fileManager.DeleteRecursive(KOREAN_UPDATES_FOLDER);
-                                fileManager.DeleteRecursive(ENGLISH_UPDATES_FOLDER);
-                                new File(KOREAN_UPDATES_PATH).mkdirs();
-                                new File(ENGLISH_UPDATES_PATH).mkdirs();
-                                fileManager.unzip(UPDATES_PATCH_ZIP_FILE, UPDATES_FOLDER);
-
-                                fileManager.copyDirectory(ENGLISH_UPDATES_FOLDER,GAME_DATA_FOLDER);
-                                Toast.makeText(MainActivity.this, "You have successfully updated translation files, English patch has been applied to game files", Toast.LENGTH_LONG).show();
-
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                Toast.makeText(MainActivity.this, "You have failed to update translation files", Toast.LENGTH_LONG).show();
-                            }
-
-                        }
-                    }
-                });
-
-        AlertDialog alert11 = builder1.create();
-        alert11.show();
-
     }
+
+    private void ApplyUpdate()
+    {
+        try {
+
+            boolean deleted = UPDATES_PATCH_ZIP_FILE.delete();
+            fileManager.copyDirectory(TEMP_FOLDER, UPDATES_FOLDER);
+            deleted = TEMP_PATCH_ZIP_FILE.delete();
+            fileManager.DeleteRecursive(KOREAN_UPDATES_FOLDER);
+            fileManager.DeleteRecursive(ENGLISH_UPDATES_FOLDER);
+            new File(KOREAN_UPDATES_PATH).mkdirs();
+            new File(ENGLISH_UPDATES_PATH).mkdirs();
+            fileManager.unzip(UPDATES_PATCH_ZIP_FILE, UPDATES_FOLDER);
+            fileManager.copyDirectory(ENGLISH_UPDATES_FOLDER, GAME_DATA_FOLDER);
+
+            SetStatus("English");
+            Toast.makeText(MainActivity.this, "You have successfully updated translation files, English patch has been applied to game files", Toast.LENGTH_LONG).show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(MainActivity.this, "You have failed to update translation files", Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+
 
     private void FolderSetup ()
     {
@@ -298,11 +287,12 @@ public class MainActivity extends ActionBarActivity {
 
     public void onCheckUpdateClick(View view) {
 
-
-        final  ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
+        if(isInternetPresent){
+        final  ProgressDialog progressDialog = new ProgressDialog(MainActivity.this, AlertDialog.THEME_HOLO_DARK);
         progressDialog.setTitle("Updates");
         progressDialog.setMessage("Checking for updates.....Please wait....");
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+
         final ProgressBar progressBar = new ProgressBar(MainActivity.this);
         progressDialog.show();
 
@@ -339,7 +329,7 @@ public class MainActivity extends ActionBarActivity {
                             boolean compare1and2 = FileUtils.contentEquals(UPDATES_PATCH_ZIP_FILE, file);
                             Log.v("compare", String.valueOf(compare1and2));
 
-                            alertDialog(compare1and2);
+                            UpdatesDialog(compare1and2);
 
 
                         } catch (IOException e2) {
@@ -349,4 +339,8 @@ public class MainActivity extends ActionBarActivity {
                     }
                 });
     }
-}
+    else{
+            String msg =  "Can't  connect to the Internet, check your connection";
+            CustomDialog(false, msg, "ERROR !");
+    }
+}}
