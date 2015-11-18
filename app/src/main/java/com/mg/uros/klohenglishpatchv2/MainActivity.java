@@ -1,9 +1,6 @@
 package com.mg.uros.klohenglishpatchv2;
-
-
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
@@ -15,11 +12,9 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.ProgressCallback;
-
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
@@ -51,11 +46,9 @@ public class MainActivity extends ActionBarActivity {
     private SharedPreferences settings = null;
     private TextView statusValue = null;
     private boolean isInternetPresent ;
-
-
-
-
-    FileManager fileManager = new FileManager(MainActivity.this);
+    private boolean firstRun;
+    private ConnectionDetector cd;
+    private FileManager fileManager;
 
 
     @Override
@@ -63,28 +56,12 @@ public class MainActivity extends ActionBarActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        fileManager = new FileManager(MainActivity.this);
         settings = getSharedPreferences(PREFS_NAME, 0);
         statusValue = (TextView) findViewById(R.id.status_text_value);
-
-        if (!GAME_DATA_FOLDER.isDirectory() || !GAME_DATA_FOLDER.exists()) {
-            Log.v("DIR_CHECK", "FOLDER NOT FOUND !");
-
-            String msg =  "Files for Korean Legion Of Heroes are not detected, game is not installed or files are moved away from default location.";
-            CustomDialog(true, msg, "ERROR !");
-
-        }
-        if (!UPDATES_FOLDER.isDirectory() || !BACKUP_FOLDER.isDirectory() || !TEMP_FOLDER.isDirectory()) {
-            FolderSetup();
-        }
-
-
-
-
-        boolean firstRun = settings.getBoolean("firstRun", true); // Is it first run? If not specified, use "true"
-
-        ConnectionDetector cd = new ConnectionDetector(getApplicationContext());
+        firstRun = settings.getBoolean("firstRun", true);
+        cd = new ConnectionDetector(getApplicationContext());
         isInternetPresent = cd.isConnectingToInternet();
-
 
         if (firstRun) {
             Log.w("activity", "first time");
@@ -99,6 +76,17 @@ public class MainActivity extends ActionBarActivity {
             Log.w("activity", "second time");
             statusValue.setText(getStatus);
 
+        }
+
+        if (!GAME_DATA_FOLDER.isDirectory() || !GAME_DATA_FOLDER.exists()) {
+            Log.v("DIR_CHECK", "FOLDER NOT FOUND !");
+
+            String msg =  "Files for Korean Legion Of Heroes are not detected, game is not installed or files are moved away from default location.";
+            CustomDialog(true, msg, "ERROR !");
+
+        }
+        if (!UPDATES_FOLDER.isDirectory() || !BACKUP_FOLDER.isDirectory() || !TEMP_FOLDER.isDirectory()) {
+            FolderSetup();
         }
 
 
@@ -121,7 +109,7 @@ public class MainActivity extends ActionBarActivity {
 
     private void joinGuildDialog()
     {
-        String msg = "Thanks for using KLOH English patch.\nThis apk has been made by Dirdra , translation files are by Rellim.\nWe are both from ROOM1 guild , 티아미스뭘트 server (1st on list). If you want to be in friendly and active guild, you are welcome to join us.\nMake application in game if so.";
+        String msg = "Thanks for using KLOH English patch.\nThis apk has been made by Dirdra , translation files are by Rellim, quests from Chapter 4 are translated by SaMMy\n For more awesomeness join Tús Nua guild and be in touch with friendly people from all around the world !, 티아미스뭘트 server (1st on list).";
         CustomDialog(true, msg, "EXIT");
     }
 

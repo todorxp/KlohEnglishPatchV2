@@ -32,11 +32,8 @@ public class CustomDialog extends Dialog  implements  android.view.View.OnClickL
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.alert_dialog_one_button);
         ok = (Button) findViewById(R.id.alert_dialog_button_OK);
-
-
         ok.setOnClickListener(this);
 
-     //   builder1.setCancelable(true);
     }
 
     @Override
