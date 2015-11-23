@@ -109,7 +109,7 @@ public class MainActivity extends ActionBarActivity {
 
     private void joinGuildDialog()
     {
-        String msg = "Thanks for using KLOH English patch.\nThis apk has been made by Dirdra , translation files are by Rellim, quests from Chapter 4 are translated by SaMMy\n For more awesomeness join Tús Nua guild and be in touch with friendly people from all around the world !, 티아미스뭘트 server (1st on list).";
+        String msg = "Thanks for using KLOH English patch.\nThis apk has been made by Dirdra , translation files are by Rellim, quests from Chapter 4 are translated by SaMMy\nFor more awesomeness join Tús Nua guild and be in touch with friendly people from all around the world !, 티아미스뭘트 server (1st on list).";
         CustomDialog(true, msg, "EXIT");
     }
 
